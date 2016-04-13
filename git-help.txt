@@ -1,0 +1,315 @@
+﻿
+官網
+    https://git-scm.com/
+
+https://git-for-windows.github.io/
+
+學習：
+http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000
+https://try.github.io/levels/1/challenges/1
+
+
+
+doskey git="c:\program files\git\bin\git.exe" $*
+
+
+* 全局設定
+
+$ git config --global user.name "Your Name"
+$ git config --global user.email "email@example.com"
+
+*****
+    配置別名
+
+git config --global color.ui true
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.ci commit
+git config --global alias.br branch
+git config --global alias.unstage 'reset HEAD'
+git config --global alias.last 'log -1'
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+    加上--global是針對当前用戸起作用的，如果不加，那只針對当前的倉庫起作用。
+
+    ※ 毎个倉庫的Git配置文件都放在.git/config文件中
+    ※ 当前用戸的Git配置文件放在用戸主目録下的一个隱藏文件.gitconfig中
+
+*****
+
+
+
+創建版本庫
+$ mkdir learngit
+$ cd learngit
+$ git init
+
+$ git add readme.txt
+$ git commit -m "wrote a readme file"
+
+
+
+*****
+    工作區（Working Directory）  learngit/
+    版本庫（Repository） .git/  本地庫
+    暫存区（stage）  是Git非常重要的概念
+    遠程庫（origin）
+    儲藏區（stash）
+    branch 分支
+        Issue   分支
+        Hotfix  分支
+        Feature 分支
+
+    HEAD嚴格来説不是指向提交，而是指向當前分支(比如master)，當前分支才是指向提交的，所以，HEAD指向的就是当前分支。
+    
+    把文件往Git版本庫里添加的時候，是分两步執行的：
+    第一步是用git add把文件添加進去，實際上就是把文件修改添加到暫存区；
+    第二步是用git commit提交更改，實際上就是把暫存区的所有内容提交到当前分支。
+
+    毎次修改，如果不add到暫存区，那就不会加入到commit中。
+*****
+
+
+査看状態
+$ git status
+
+比較内容
+$ git diff readme.txt
+$ git diff HEAD
+$ git diff --staged
+
+
+査看 工作区 和 版本庫 里面最新版本的区别
+$ git diff HEAD -- readme.txt
+
+# 顯示从最近到最遠的提交日志
+$ git log
+
+# 顯示从最近到最遠的提交日志（1行）
+$ git log --pretty=oneline
+
+# 顯示最近的提交日志
+$ git log -1
+
+
+査看命令歴史
+$ git reflog
+
+
+*****
+    在Git中，
+    HEAD 表示当前版本
+    上一个版本就是HEAD^，
+    上上一个版本就是HEAD^^，
+    当然往上100个版本写100个^比较容易数不过来，所以写成HEAD~100。
+*****
+
+回退到上一个版本
+$ git reset --hard HEAD^
+$ git reset --hard "HEAD^"  # Windows下也許要加上雙引號？
+
+
+捨弃工作區的修改，
+讓文件回到最近一次git commit或git add時的状態。
+$ git checkout -- readme.txt
+
+把暫存区的修改撤銷掉（unstage），重新放回工作区
+$ git reset HEAD readme.txt
+
+*****
+場景1：当妳改乱了工作区某个文件的内容，想直接捨弃工作区的修改時，用命令git checkout -- file。
+場景2：当妳不但改乱了工作区某个文件的内容，還添加到了暫存区時，想捨弃修改，
+       分両步!
+        第一步用命令git reset HEAD file，就回到了場景1，
+        第二步按場景1操作 git checkout -- file。
+場景3：已经提交了不合适的修改到版本庫時，想要撤銷本次提交，参考版本回退一節，不過前提是没有推送到遠程庫。
+*****
+
+
+刪除文件
+$ git rm test.txt
+
+
+遠程倉庫
+創建SSH Key
+$ ssh-keygen -t rsa -C "youremail@example.com"
+
+
+関連一个遠程庫
+$ git remote add origin git@github.com:zqn2069/learngit.git
+
+関連后，使用命令git push 第一次推送master分支的所有内容
+本地庫的内容推送到遠程庫，用git push命令，實際上是把当前分支master推送到遠程庫master分支
+$ git push -u origin master
+
+*****
+    -u 参数，把本地的master分支和遠程的master分支關聯起来，在以后的推送或者拉取時就可以簡化命令。
+*****
+
+此后，毎次本地提交后，只要有必要，就可以使用命令
+$ git push origin master
+推送最新修改
+
+克隆一个遠程庫到本地庫
+$ git clone git@github.com:zqn2069/gitskills.git
+$ git clone https://github.com/zqn2069/gitskills.git
+
+*****
+    使用https除了速度慢以外，還有个最大的麻煩是毎次推送都必須輸入口令，
+    但是在某些只開放http端口的公司内部就无法使用ssh協議而只能用https。
+*****
+
+
+査看分支：git branch
+
+創建分支：git branch <name>
+
+切換分支：git checkout <name>
+
+創建+切換分支：git checkout -b <name>
+
+合并某分支到当前分支：git merge <name>
+*****
+    通常，合并分支時，如果可能，Git会用Fast forward模式，但這種模式下，刪除分支后，会捨掉分支信息。
+*****
+
+
+    刪除分支：git branch -d <name>
+強制刪除分支：git branch -D <name>
+
+
+分支的合并圖(--graph)情况
+$ git log --graph --pretty=oneline --abbrev-commit
+
+--no-ff参数，表示禁用Fast forward
+$ git merge --no-ff -m "merge with no-ff" dev
+
+*****
+$ git merge --no-ff -m "merge with no-ff" dev
+--no-ff参数，表示禁用Fast forward
+*****
+
+
+
+把当前工作現場“儲藏”起来，等以后恢復現場后繼續工作
+$ git stash
+
+$ git stash list
+
+Git把stash内容存在某个地方了，恢復有両个办法：
+一是用
+    $ git stash apply恢復，但是恢復后，stash内容并不刪除，妳需要用
+    $ git stash drop 来刪除；
+
+    可以多次git stash，恢復的時候，
+    $ git stash apply stash@{0}
+
+另一種方式是用
+    $ git stash pop，恢復的同時把stash内容也刪了
+
+
+
+査看遠程庫的信息，用
+$ git remote
+$ git remote -v    # 顯示更詳細的信息
+$ git push origin master
+
+創建遠程origin的dev分支到本地
+$ git checkout -b dev origin/dev 
+
+*****
+    ・査看遠程庫信息，使用git remote -v；
+    ・本地新建的分支如果不推送到遠程，対其他人就是不可見的；
+    ・从本地推送分支，使用git push origin branch-name，如果推送失敗，先用git pull抓取遠程的新提交；
+    ・在本地創建和遠程分支対応的分支，使用git checkout -b branch-name origin/branch-name，本地和遠程分支的名称最好一致；
+    ・建立本地分支和遠程分支的関連，使用git branch --set-upstream branch-name origin/branch-name；
+    ・从遠程抓取分支，使用git pull，如果有冲突，要先処理冲突。
+*****
+
+
+* 標簽
+    注意：標簽不是按時間順序列出，而是按字母排序的。
+
+命令 git tag 可以査看所有標簽。
+
+git show <tagname>可以看到説明文字。
+
+命令git tag <tagname>用于新建一个標簽，
+
+默認為HEAD，也可以指定一个commit id；
+$ git tag v0.9 <commit id>
+
+
+可以指定標簽信息。
+git tag -a <tagname> -m "blablabla..."
+可以用PGP簽名標簽。
+git tag -s <tagname> -m "blablabla..."
+
+
+推送一个本地標簽
+$ git push origin <tagname>
+
+一次性推送全部未推送過的本地標簽到遠程
+$　git push origin --tags
+
+
+標簽刪除
+
+    先从本地刪除標簽
+    $ git tag -d <tagname>
+
+    再刪除一个遠程標簽
+    git push origin :refs/tags/<tagname>
+
+
+
+*****
+    GitHub:
+    在GitHub上，可以任意Fork開源倉庫
+        点“Fork”就在自己的帳號下克隆了一个開源倉庫，然后，从自己的帳号下clone
+        自己擁有 Fork后的倉庫 的讀寫権限
+    可以推送pull request給官方倉庫来貢獻代碼
+*****
+
+
+*****
+    .gitignore 文件 (也可以做版本管理)
+        # Windows:
+        Thumbs.db
+        ehthumbs.db
+        Desktop.ini
+
+        # Python:
+        *.py[cod]
+        *.so
+        *.egg
+        *.egg-info
+        dist
+        build
+
+        # my ignores:
+        .idea
+        .git
+        .svn
+        *.txt
+
+*****
+
+
+*****
+    ※ Gitosis 方便管理公鑰
+        https://github.com/res0nat0r/gitosis
+
+        Manage git repositories, provide access to them over SSH, 
+        with tight access control and not needing shell accounts.
+
+
+    ※ Gitolite 像SVN那樣變態地控制権
+        https://github.com/sitaramc/gitolite
+
+        Hosting git repositories -- 
+        Gitolite allows you to setup git hosting on a central server, 
+        with very fine-grained access control and many (many!) more powerful features. 
+        http://wiki.github.com/sitaramc/gitolite/
+
+*****
